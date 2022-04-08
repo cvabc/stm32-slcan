@@ -77,9 +77,9 @@ static void gpio_setup(void)
     gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
         GPIO12);
 
-    /* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
+    /* Enable clocks for GPIO port A (for GPIO_USART1_TX) and USART1. */
     rcc_periph_clock_enable(RCC_AFIO);
-    rcc_periph_clock_enable(RCC_USART2);
+    rcc_periph_clock_enable(RCC_USART1);
     rcc_periph_clock_enable(RCC_DMA1);
 }
 
@@ -189,16 +189,16 @@ static void can_setup(void)
     rcc_periph_clock_enable(RCC_AFIO);
     rcc_periph_clock_enable(RCC_CAN1);
 
-    AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
+    // AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
 
     /* Configure CAN pin: RX (input pull-up) */
-    gpio_set_mode(GPIO_BANK_CAN1_PB_RX, GPIO_MODE_INPUT,
-        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO_CAN1_PB_RX);
-    gpio_set(GPIO_BANK_CAN1_PB_RX, GPIO_CAN1_PB_RX);
+    gpio_set_mode(GPIO_BANK_CAN1_RX, GPIO_MODE_INPUT,
+        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO_CAN1_RX);
+    gpio_set(GPIO_BANK_CAN1_RX, GPIO_CAN1_RX);
 
     /* Configure CAN pin: TX */
-    gpio_set_mode(GPIO_BANK_CAN1_PB_TX, GPIO_MODE_OUTPUT_50_MHZ,
-        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_CAN1_PB_TX);
+    gpio_set_mode(GPIO_BANK_CAN1_TX, GPIO_MODE_OUTPUT_50_MHZ,
+        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_CAN1_TX);
 
     /* NVIC setup */
     nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
@@ -207,9 +207,9 @@ static void can_setup(void)
     /* Reset CAN */
     can_reset(CAN1);
 
-    /* defaultt CAN setting 250 kBaud */
+    /* defaultt CAN setting 1000 kBaud */
     if (can_speed(5)) {
-        gpio_clear(GPIOC, GPIO13); /* LED green on */
+        gpio_clear(GPIOB, GPIO12); /* LED green on */
 
         /* Die because we failed to initialize. */
         while (1)
@@ -237,31 +237,31 @@ void sys_tick_handler(void)
     counter++;
     if (counter == 500) {
         counter = 0;
-        gpio_toggle(GPIOC, GPIO13); /* toggle green LED */
+        gpio_toggle(GPIOB, GPIO12); /* toggle green LED */
     }
 }
 
-// static void gpio_debug(int n)
-// {
-//     switch (n) {
-//     case 0:
-//         gpio_clear(GPIOC, GPIO14);
-//         gpio_clear(GPIOC, GPIO15);
-//         break;
-//     case 1:
-//         gpio_set(GPIOC, GPIO14);
-//         gpio_clear(GPIOC, GPIO15);
-//         break;
-//     case 2:
-//         gpio_clear(GPIOC, GPIO14);
-//         gpio_set(GPIOC, GPIO15);
-//         break;
-//     case -1:
-//         gpio_set(GPIOC, GPIO14);
-//         gpio_set(GPIOC, GPIO15);
-//         break;
-//     }
-// }
+static void gpio_debug(int n)
+{
+    switch (n) {
+    case 0:
+        gpio_clear(GPIOC, GPIO14);
+        gpio_clear(GPIOC, GPIO15);
+        break;
+    case 1:
+        gpio_set(GPIOC, GPIO14);
+        gpio_clear(GPIOC, GPIO15);
+        break;
+    case 2:
+        gpio_clear(GPIOC, GPIO14);
+        gpio_set(GPIOC, GPIO15);
+        break;
+    case -1:
+        gpio_set(GPIOC, GPIO14);
+        gpio_set(GPIOC, GPIO15);
+        break;
+    }
+}
 
 static void put_hex(uint8_t c)
 {
@@ -320,7 +320,7 @@ void usb_lp_can_rx0_isr(void)
     can_fifo_release(CAN1, 0);
 
     /* enable the transmitter now */
-    USART_CR1(USART2) |= USART_CR1_TXEIE;
+    USART_CR1(USART1) |= USART_CR1_TXEIE;
 }
 
 static uint32_t get_nibbles(int nibbles)
@@ -430,7 +430,7 @@ static int slcan_command(void)
 #if 1
     if (send) {
         ret = can_transmit(CAN1, id, ext, rtr, dlc, data);
-        /* gpio_debug(ret); */
+        //gpio_debug(ret);
     }
 #else
     if (send) {
@@ -464,11 +464,11 @@ int main(void)
 
     systick_setup();
 
-    while (1) {
-	gpio_toggle(GPIOB, GPIO12);
-	for (int i = 0; i < 999999; i++)
-            __asm__("nop");
-    }
+    // while (1) {
+	// gpio_toggle(GPIOB, GPIO12);
+	// for (int i = 0; i < 999999; i++)
+    //         __asm__("nop");
+    // }
 
     /* endless loop */
     while (1) {
@@ -478,7 +478,7 @@ int main(void)
             ring_write_ch(&output_ring, '\a');
         }
         /* enable the transmitter now */
-        USART_CR1(USART2) |= USART_CR1_TXEIE;
+        USART_CR1(USART1) |= USART_CR1_TXEIE;
     }
     return 0;
 }
