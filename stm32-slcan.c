@@ -213,7 +213,7 @@ static void can_setup(void)
     can_reset(CAN1);
 
     /* defaultt CAN setting 1000 kBaud */
-    if (can_speed(5)) {
+    if (can_speed(8)) {
         gpio_clear(GPIOB, GPIO12); /* LED green on */
 
         /* Die because we failed to initialize. */
@@ -469,16 +469,6 @@ int main(void)
     usart_setup();
 
     systick_setup();
-
-    
-    // while (1) {
-    // }
-
-    // while (1) {
-	// gpio_toggle(GPIOB, GPIO12);
-	// for (int i = 0; i < 999999; i++)
-    //         __asm__("nop");
-    // }
 
     /* endless loop */
     while (1) {
