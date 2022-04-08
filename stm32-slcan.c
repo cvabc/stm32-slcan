@@ -74,8 +74,13 @@ static void gpio_setup(void)
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
         GPIO15);
 
+
+    gpio_set(GPIOB, GPIO12);
+    gpio_set(GPIOB, GPIO5);
     gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
         GPIO12);
+    gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
+        GPIO5);
 
     /* Enable clocks for GPIO port A (for GPIO_USART1_TX) and USART1. */
     rcc_periph_clock_enable(RCC_AFIO);
@@ -237,7 +242,8 @@ void sys_tick_handler(void)
     counter++;
     if (counter == 500) {
         counter = 0;
-        gpio_toggle(GPIOB, GPIO12); /* toggle green LED */
+        //gpio_toggle(GPIOB, GPIO12); /* toggle green LED */
+        //gpio_toggle(GPIOB, GPIO5); /* toggle green LED */
     }
 }
 
@@ -245,20 +251,20 @@ static void gpio_debug(int n)
 {
     switch (n) {
     case 0:
-        gpio_clear(GPIOC, GPIO14);
-        gpio_clear(GPIOC, GPIO15);
+        gpio_clear(GPIOB, GPIO5);
+        gpio_clear(GPIOB, GPIO12);
         break;
     case 1:
-        gpio_set(GPIOC, GPIO14);
-        gpio_clear(GPIOC, GPIO15);
+        gpio_set(GPIOB, GPIO5);
+        gpio_clear(GPIOB, GPIO12);
         break;
     case 2:
-        gpio_clear(GPIOC, GPIO14);
-        gpio_set(GPIOC, GPIO15);
+        gpio_clear(GPIOB, GPIO5);
+        gpio_set(GPIOB, GPIO12);
         break;
     case -1:
-        gpio_set(GPIOC, GPIO14);
-        gpio_set(GPIOC, GPIO15);
+        gpio_set(GPIOB, GPIO5);
+        gpio_set(GPIOB, GPIO12);
         break;
     }
 }
@@ -430,7 +436,7 @@ static int slcan_command(void)
 #if 1
     if (send) {
         ret = can_transmit(CAN1, id, ext, rtr, dlc, data);
-        //gpio_debug(ret);
+        gpio_debug(ret);
     }
 #else
     if (send) {
@@ -463,6 +469,10 @@ int main(void)
     usart_setup();
 
     systick_setup();
+
+    
+    // while (1) {
+    // }
 
     // while (1) {
 	// gpio_toggle(GPIOB, GPIO12);
