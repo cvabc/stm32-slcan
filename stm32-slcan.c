@@ -74,6 +74,9 @@ static void gpio_setup(void)
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
         GPIO15);
 
+    gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
+        GPIO12);
+
     /* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
     rcc_periph_clock_enable(RCC_AFIO);
     rcc_periph_clock_enable(RCC_USART2);
@@ -460,6 +463,12 @@ int main(void)
     usart_setup();
 
     systick_setup();
+
+    while (1) {
+	gpio_toggle(GPIOB, GPIO12);
+	for (int i = 0; i < 999999; i++)
+            __asm__("nop");
+    }
 
     /* endless loop */
     while (1) {
