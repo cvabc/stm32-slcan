@@ -472,7 +472,7 @@ int main(void)
 
     /* endless loop */
     while (1) {
-        if (slcan_command()) {
+        if (slcan_command() >= 0) {
             ring_write_ch(&output_ring, '\r');
         } else {
             ring_write_ch(&output_ring, '\a');
